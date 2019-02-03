@@ -2,13 +2,29 @@ resource_group_name = "cl-dev-rg"
 
 location = "EastUS"
 
-admin_username = "cladmin"
-
-admin_password = "G0ld5t4r!"
-
 vnet_name = "cl-dev-vnet"
 
 vnet_address_space = ["192.168.0.0/16"]
+
+# Global VM vars
+vm = {
+  # User
+  admin_username = "cladmin"
+  admin_password = "G0ld5t4r!"
+
+  # Storage
+  vm_size           = "Standard_DS1_v2"
+  sku               = "2016-Datacenter-smalldisk"
+  managed_disk_type = "StandardSSD_LRS"
+
+  # os_profile_windows_config
+  provision_vm_agent        = false
+  enable_automatic_upgrades = false
+  timezone                  = "GMT Standard Time"
+  # winrm                     = "HTTP"
+
+  # additional_unattend_config = ""
+}
 
 remote = {
   "subnet_name"   = "cl-dev-remote-subnet"

@@ -1,11 +1,13 @@
 variable "resource_group_name" {}
 variable "location" {}
-variable "admin_username" {}
-variable "admin_password" {}
 variable "vnet_name" {}
 
 variable "vnet_address_space" {
   type = "list"
+}
+
+variable "vm" {
+  type = "map"
 }
 
 variable "remote" {
