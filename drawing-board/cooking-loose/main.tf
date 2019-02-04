@@ -86,11 +86,12 @@ resource "azurerm_network_security_group" "cl_nsg_remote" {
   }
 }
 
-# Associating the Remote Network Security Group with the Remote Subnet
-resource "azurerm_subnet_network_security_group_association" "remote_nsg_assoc" {
-  subnet_id                 = "${azurerm_subnet.cl_remote_subnet.id}"
-  network_security_group_id = "${azurerm_network_security_group.cl_nsg_remote.id}"
-}
+# Not Using this as it has an issue - and causes a hang if used along with nested NSG definition in azurerm_subnet resources above
+# # Associating the Remote Network Security Group with the Remote Subnet
+# resource "azurerm_subnet_network_security_group_association" "remote_nsg_assoc" {
+#   subnet_id                 = "${azurerm_subnet.cl_remote_subnet.id}"
+#   network_security_group_id = "${azurerm_network_security_group.cl_nsg_remote.id}"
+# }
 
 # Network Security Group and Rule for Internal Subnets
 resource "azurerm_network_security_group" "cl_nsg_internal" {
@@ -116,23 +117,26 @@ resource "azurerm_network_security_group" "cl_nsg_internal" {
   }
 }
 
-# Associating the Internal Network Security Group with the WSM Subnet
-resource "azurerm_subnet_network_security_group_association" "wsm_nsg_assoc" {
-  subnet_id                 = "${azurerm_subnet.cl_wsm_subnet.id}"
-  network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
-}
+# Not Using this as it has an issue - and causes a hang if used along with nested NSG definition in azurerm_subnet resources above
+# # Associating the Internal Network Security Group with the WSM Subnet
+# resource "azurerm_subnet_network_security_group_association" "wsm_nsg_assoc" {
+#   subnet_id                 = "${azurerm_subnet.cl_wsm_subnet.id}"
+#   network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
+# }
 
-# Associating the Internal Network Security Group with the Portishead Subnet
-resource "azurerm_subnet_network_security_group_association" "portishead_nsg_assoc" {
-  subnet_id                 = "${azurerm_subnet.cl_portishead_subnet.id}"
-  network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
-}
+# Not Using this as it has an issue - and causes a hang if used along with nested NSG definition in azurerm_subnet resources above
+# # Associating the Internal Network Security Group with the Portishead Subnet
+# resource "azurerm_subnet_network_security_group_association" "portishead_nsg_assoc" {
+#   subnet_id                 = "${azurerm_subnet.cl_portishead_subnet.id}"
+#   network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
+# }
 
-# Associating the Internal Network Security Group with the Winscombe Subnet
-resource "azurerm_subnet_network_security_group_association" "winscombe_nsg_assoc" {
-  subnet_id                 = "${azurerm_subnet.cl_winscombe_subnet.id}"
-  network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
-}
+# Not Using this as it has an issue - and causes a hang if used along with nested NSG definition in azurerm_subnet resources above
+# # Associating the Internal Network Security Group with the Winscombe Subnet
+# resource "azurerm_subnet_network_security_group_association" "winscombe_nsg_assoc" {
+#   subnet_id                 = "${azurerm_subnet.cl_winscombe_subnet.id}"
+#   network_security_group_id = "${azurerm_network_security_group.cl_nsg_internal.id}"
+# }
 
 #endregion Network Security
 
