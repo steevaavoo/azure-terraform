@@ -285,3 +285,125 @@ resource "azurerm_virtual_machine" "cl_wsm_dc_server" {
 
 #endregion WSM DC
 
+#region Portishead DC
+# Creating Portishead DC NIC
+resource "azurerm_network_interface" "cl_portishead_dc_nic" {
+  name                = "portishead-dc-nic1"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.cl_rg.name}"
+
+  ip_configuration {
+    name                          = "cl-portishead-dc-nic-configuration"
+    subnet_id                     = "${azurerm_subnet.cl_portishead_subnet.id}"
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags {
+    environment = "dev"
+    category    = "network"
+  }
+}
+
+resource "azurerm_virtual_machine" "cl_portishead_dc_server" {
+  name                             = "${var.portishead["vm_name"]}"
+  location                         = "${var.location}"
+  resource_group_name              = "${azurerm_resource_group.cl_rg.name}"
+  network_interface_ids            = ["${azurerm_network_interface.cl_portishead_dc_nic.id}"]
+  vm_size                          = "${var.vm["vm_size"]}"
+  delete_os_disk_on_termination    = true
+  delete_data_disks_on_termination = true
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "${var.vm["sku"]}"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "${var.portishead["vm_name"]}-os"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "${var.vm["managed_disk_type"]}"
+  }
+
+  os_profile {
+    computer_name  = "${var.portishead["vm_name"]}"
+    admin_username = "${var.vm["admin_username"]}"
+    admin_password = "${var.vm["admin_password"]}"
+  }
+
+  os_profile_windows_config {
+    provision_vm_agent        = "${var.vm["provision_vm_agent"]}"
+    enable_automatic_upgrades = "${var.vm["enable_automatic_upgrades"]}"
+    timezone                  = "${var.vm["timezone"]}"
+
+    # winrm                     = "${var.vm["winrm"]}"
+
+    # additional_unattend_config = "${var.vm["additional_unattend_config"]}"
+  }
+}
+
+#endregion Portishead DC
+
+#region Winscombe DC
+# Creating Winscombe DC NIC
+resource "azurerm_network_interface" "cl_winscombe_dc_nic" {
+  name                = "winscombe-dc-nic1"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.cl_rg.name}"
+
+  ip_configuration {
+    name                          = "cl-winscombe-dc-nic-configuration"
+    subnet_id                     = "${azurerm_subnet.cl_winscombe_subnet.id}"
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags {
+    environment = "dev"
+    category    = "network"
+  }
+}
+
+resource "azurerm_virtual_machine" "cl_winscombe_dc_server" {
+  name                             = "${var.winscombe["vm_name"]}"
+  location                         = "${var.location}"
+  resource_group_name              = "${azurerm_resource_group.cl_rg.name}"
+  network_interface_ids            = ["${azurerm_network_interface.cl_winscombe_dc_nic.id}"]
+  vm_size                          = "${var.vm["vm_size"]}"
+  delete_os_disk_on_termination    = true
+  delete_data_disks_on_termination = true
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "${var.vm["sku"]}"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "${var.winscombe["vm_name"]}-os"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "${var.vm["managed_disk_type"]}"
+  }
+
+  os_profile {
+    computer_name  = "${var.winscombe["vm_name"]}"
+    admin_username = "${var.vm["admin_username"]}"
+    admin_password = "${var.vm["admin_password"]}"
+  }
+
+  os_profile_windows_config {
+    provision_vm_agent        = "${var.vm["provision_vm_agent"]}"
+    enable_automatic_upgrades = "${var.vm["enable_automatic_upgrades"]}"
+    timezone                  = "${var.vm["timezone"]}"
+
+    # winrm                     = "${var.vm["winrm"]}"
+
+    # additional_unattend_config = "${var.vm["additional_unattend_config"]}"
+  }
+}
+
+#endregion Winscombe DC
+
