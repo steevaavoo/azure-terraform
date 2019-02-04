@@ -16,6 +16,11 @@ resource "azurerm_virtual_network" "cl_vnet" {
   address_space       = "${var.vnet_address_space}"
   location            = "${var.location}"
   resource_group_name = "${azurerm_resource_group.cl_rg.name}"
+
+  tags {
+    environment = "dev"
+    category    = "network"
+  }
 }
 
 # Define the Remote Subnet - for external access and admin
@@ -132,7 +137,6 @@ resource "azurerm_subnet_network_security_group_association" "winscombe_nsg_asso
 #endregion Network Security
 
 #region Jump Server
-
 # Generating a random string for FQDN Prefix
 resource "random_string" "fqdn" {
   length  = 6
@@ -164,7 +168,7 @@ resource "azurerm_network_interface" "cl_jump_nic" {
   ip_configuration {
     name                          = "cl-jump-nic-configuration"
     subnet_id                     = "${azurerm_subnet.cl_remote_subnet.id}"
-    private_ip_address_allocation = "dynamic"
+    private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = "${azurerm_public_ip.cl_jump_pip.id}"
   }
 
@@ -175,16 +179,18 @@ resource "azurerm_network_interface" "cl_jump_nic" {
 }
 
 resource "azurerm_virtual_machine" "cl_jump_server" {
-  name                  = "${var.remote["vm_name"]}"
-  location              = "${var.location}"
-  resource_group_name   = "${azurerm_resource_group.cl_rg.name}"
-  network_interface_ids = ["${azurerm_network_interface.cl_jump_nic.id}"]
-  vm_size               = "Standard_D1"
+  name                             = "${var.remote["vm_name"]}"
+  location                         = "${var.location}"
+  resource_group_name              = "${azurerm_resource_group.cl_rg.name}"
+  network_interface_ids            = ["${azurerm_network_interface.cl_jump_nic.id}"]
+  vm_size                          = "${var.vm["vm_size"]}"
+  delete_os_disk_on_termination    = true
+  delete_data_disks_on_termination = true
 
   storage_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
+    sku       = "${var.vm["sku"]}"
     version   = "latest"
   }
 
@@ -192,19 +198,86 @@ resource "azurerm_virtual_machine" "cl_jump_server" {
     name              = "${var.remote["vm_name"]}-os"
     caching           = "ReadWrite"
     create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+    managed_disk_type = "${var.vm["managed_disk_type"]}"
   }
 
   os_profile {
     computer_name  = "${var.remote["vm_name"]}"
-    admin_username = "${var.admin_username}"
-    admin_password = "${var.admin_password}"
+    admin_username = "${var.vm["admin_username"]}"
+    admin_password = "${var.vm["admin_password"]}"
   }
 
   os_profile_windows_config {
-    enable_automatic_upgrades = false
+    provision_vm_agent        = "${var.vm["provision_vm_agent"]}"
+    enable_automatic_upgrades = "${var.vm["enable_automatic_upgrades"]}"
+    timezone                  = "${var.vm["timezone"]}"
+
+    # winrm                     = "${var.vm["winrm"]}"
+
+    # additional_unattend_config = "${var.vm["additional_unattend_config"]}"
   }
 }
 
 #endregion Jump Server
+
+#region WSM DC
+# Creating WSM DC NIC
+resource "azurerm_network_interface" "cl_wsm_dc_nic" {
+  name                = "wsm-dc-nic1"
+  location            = "${var.location}"
+  resource_group_name = "${azurerm_resource_group.cl_rg.name}"
+
+  ip_configuration {
+    name                          = "cl-wsm-dc-nic-configuration"
+    subnet_id                     = "${azurerm_subnet.cl_wsm_subnet.id}"
+    private_ip_address_allocation = "Dynamic"
+  }
+
+  tags {
+    environment = "dev"
+    category    = "network"
+  }
+}
+
+resource "azurerm_virtual_machine" "cl_wsm_dc_server" {
+  name                             = "${var.wsm["vm_name"]}"
+  location                         = "${var.location}"
+  resource_group_name              = "${azurerm_resource_group.cl_rg.name}"
+  network_interface_ids            = ["${azurerm_network_interface.cl_wsm_dc_nic.id}"]
+  vm_size                          = "${var.vm["vm_size"]}"
+  delete_os_disk_on_termination    = true
+  delete_data_disks_on_termination = true
+
+  storage_image_reference {
+    publisher = "MicrosoftWindowsServer"
+    offer     = "WindowsServer"
+    sku       = "${var.vm["sku"]}"
+    version   = "latest"
+  }
+
+  storage_os_disk {
+    name              = "${var.wsm["vm_name"]}-os"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "${var.vm["managed_disk_type"]}"
+  }
+
+  os_profile {
+    computer_name  = "${var.wsm["vm_name"]}"
+    admin_username = "${var.vm["admin_username"]}"
+    admin_password = "${var.vm["admin_password"]}"
+  }
+
+  os_profile_windows_config {
+    provision_vm_agent        = "${var.vm["provision_vm_agent"]}"
+    enable_automatic_upgrades = "${var.vm["enable_automatic_upgrades"]}"
+    timezone                  = "${var.vm["timezone"]}"
+
+    # winrm                     = "${var.vm["winrm"]}"
+
+    # additional_unattend_config = "${var.vm["additional_unattend_config"]}"
+  }
+}
+
+#endregion WSM DC
 
