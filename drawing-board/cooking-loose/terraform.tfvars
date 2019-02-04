@@ -44,7 +44,7 @@ wsm = {
 portishead = {
   "subnet_name"   = "cl-dev-portishead-subnet"
   "subnet_prefix" = "192.168.15.0/24"
-  "vm_name"       = "cl-portishead-dc"
+  "vm_name"       = "cl-phead-dc"
 
   #  "nsg_name"      = "cl-portishead-nsg"
 }
